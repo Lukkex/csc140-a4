@@ -54,12 +54,20 @@ public class KnapsackSolution implements java.io.Closeable
 				value += inst.GetItemValue(i);
 			}
 		}
+
+		wght = weight;
 		return value;
 	}
 	public int GetValue()
 	{
 		return value;
 	}
+
+	public int GetWeight()
+	{
+		return wght;
+	}
+
 	public void Print(String title)
 	{
 		int i;

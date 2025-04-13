@@ -7,27 +7,33 @@ public class KnapsackBFSolver implements java.io.Closeable
 	protected KnapsackSolution crntSoln;
 	protected KnapsackSolution bestSoln;
 
+	//Recursively tries all combinations of items
 	public void FindSolns(int itemNum)
 	{
-		int itemCnt = inst.GetItemCnt();
+		int itemCnt = inst.GetItemCnt(); //Total # of items in problem
     
-		if (itemNum == itemCnt + 1)
+		if (itemNum == itemCnt + 1) //If all items have been checked, evaluate the solution
 		{
-			CheckCrntSoln();
+			CheckCrntSoln(); //Check if current solution is valid & better than the best
 			return;
 		}
-		crntSoln.DontTakeItem(itemNum);
-		FindSolns(itemNum + 1);
+
+		//DONT TAKE is first, THEN it does TAKE
+		//Each item has 2 choices; take, or don't take
+		crntSoln.DontTakeItem(itemNum); 
+		FindSolns(itemNum + 1); //Go to next item and repeat
 		crntSoln.TakeItem(itemNum);
-		FindSolns(itemNum + 1);
+		FindSolns(itemNum + 1); //Go to next item and repeat
 	}
+
+	//Checks if current solution is valid & if best so far
 	public void CheckCrntSoln()
 	{
-		int crntVal = crntSoln.ComputeValue();
+		int crntVal = crntSoln.ComputeValue(); //Calculate total value of current selection
 		System.out.print("\nChecking solution ");
 		crntSoln.Print(" ");
 
-		if (crntVal == DefineConstants.INVALID_VALUE)
+		if (crntVal == DefineConstants.INVALID_VALUE) //If value is invalid aka = -1 / over capacity, skip it
 		{
 			return;
 		}
@@ -45,10 +51,13 @@ public class KnapsackBFSolver implements java.io.Closeable
 		}
 	}
 
+	//Constructor for the solver
 	public KnapsackBFSolver()
 	{
 		crntSoln = null;
 	}
+
+	//Cleans up crntSoln reference
 	public void close()
 	{
 		if (crntSoln != null)
@@ -56,6 +65,8 @@ public class KnapsackBFSolver implements java.io.Closeable
 			crntSoln = null;
 		}
 	}
+
+	//Begin recursion from item #1
 	public void Solve(KnapsackInstance inst_, KnapsackSolution soln_)
 	{
 		inst = inst_;
