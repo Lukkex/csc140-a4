@@ -46,7 +46,7 @@ public class KnapsackBBSolver extends KnapsackBFSolver
 	//weight is less than or equal to the remaining capacity.
 	public void FindSolnsUB2(int itemNum, int load, int current_value)
 	{
-		if (itemNum == itemCnt + 1) //If all items have been checked, evaluate the solution
+		if (itemNum >= itemCnt + 1) //If all items have been checked, evaluate the solution
 		{
 			CheckCrntSoln(); //Check if current solution is valid & better than the best
 			return;
@@ -68,7 +68,7 @@ public class KnapsackBBSolver extends KnapsackBFSolver
 		int itemweight = inst.GetItemWeight(itemNum);
 
 		//TAKE, then DON'T TAKE
-		if (load + inst.GetItemWeight(itemNum) <= capacity){
+		if (load + itemweight <= capacity){
 			crntSoln.TakeItem(itemNum);
 			FindSolnsUB2(itemNum + 1, load + itemweight, current_value + itemvalue); //Go to next item and repeat
 
@@ -95,7 +95,6 @@ public class KnapsackBBSolver extends KnapsackBFSolver
 		if (load > capacity) return;
 
 		int remainingCapacity = capacity - load;
-		int upperbound = 0;
 		int lowerbound = current_value;
 
 		//Upper bound calculation using fractional knapsack
@@ -105,7 +104,7 @@ public class KnapsackBBSolver extends KnapsackBFSolver
 				lowerbound += inst.GetItemSortedValue(i);
 			}
 			else {
-				upperbound = lowerbound;
+				//Do nothing; see if next item can fit instead
 			}
 		}
 
@@ -119,7 +118,7 @@ public class KnapsackBBSolver extends KnapsackBFSolver
 		//TAKE, then DON'T TAKE
 		if (load + inst.GetItemSortedWeight(itemNum) <= capacity){
 			crntSoln.TakeItem(actualIndex);
-			FindSolnsUB3(itemNum + 1, load, current_value + inst.GetItemSortedValue(itemNum)); //Go to next item and repeat
+			FindSolnsUB3(itemNum + 1, load + inst.GetItemSortedWeight(itemNum), current_value + inst.GetItemSortedValue(itemNum)); //Go to next item and repeat
 		
 			//BACKTRACK
 			crntSoln.DontTakeItem(actualIndex);
