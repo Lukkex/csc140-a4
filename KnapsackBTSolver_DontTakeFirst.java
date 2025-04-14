@@ -1,54 +1,43 @@
 import java.util.*;
 
-// Dynamic programming solver
-public class KnapsackDPSolver implements java.io.Closeable
+// Backtracking solver
+public class KnapsackBTSolver_DontTakeFirst extends KnapsackBFSolver
 {
-	protected UPPER_BOUND ub;
 	protected KnapsackInstance inst;
 	protected KnapsackSolution crntSoln;
 	protected KnapsackSolution bestSoln;
 
 	int itemCnt; //Total # of items in problem
-	int[][] t;
 	int capacity;
-	int totalvalue;
 
-	public KnapsackDPSolver()
+	//Recursively tries all combinations of items
+	public void FindSolns(int itemNum, int load)
 	{
-		crntSoln = null;
-	}
-
-	public void FindSolns(int itemNum, int load, int untaken_value)
-	{
-		for (int j = 0; j <= capacity; j++){
-			t[0][j] = 0;
+		if (itemNum == itemCnt + 1) //If all items have been checked, evaluate the solution
+		{
+			CheckCrntSoln(); //Check if current solution is valid & better than the best
+			return;
 		}
 
-		for (int i = 1; i <= itemCnt; i++){
-			for (int j = 0; j <= capacity; j++){
-				if (inst.GetItemWeight(i) > j) //Item doesn't fit
-					t[i][j] = t[i-1][j]; //Take solution from prev row
-				else
-					t[i][j] = Math.max((inst.GetItemValue(i) + t[i-1][j - inst.GetItemWeight(i)]), t[i-1][j]);
-			}
-		}
 
-		int remainingCapacity = capacity;
-		//Decide for items
-		for (int i = itemCnt; i >= 1; i--){
-			if (t[i][remainingCapacity] > t[i-1][remainingCapacity]){
-				crntSoln.TakeItem(i);
-				remainingCapacity -= inst.GetItemWeight(i);
-			}
-		}
+		//DONT TAKE is first, THEN it does TAKE
+		//Each item has 2 choices; take, or don't take
+		crntSoln.DontTakeItem(itemNum); 
+		FindSolns(itemNum + 1, load); //Go to next item and repeat
 
-		CheckCrntSoln();
+		load += inst.GetItemWeight(itemNum); //Keep track of load so far in knapsack
+
+		if (load > capacity) return; //If load + 
+
+		crntSoln.TakeItem(itemNum);
+		FindSolns(itemNum + 1, load); //Go to next item and repeat
 	}
 
 	//Checks if current solution is valid & if best so far
 	public void CheckCrntSoln()
 	{
 		int crntVal = crntSoln.ComputeValue(); //Calculate total value of current selection
+		
 		System.out.print("\nChecking solution ");
 		crntSoln.Print(" ");
 
@@ -56,7 +45,7 @@ public class KnapsackDPSolver implements java.io.Closeable
 		{
 			return;
 		}
-	
+    
 		if (bestSoln.GetValue() == DefineConstants.INVALID_VALUE) //The first solution is initially the best solution
 		{
 			bestSoln.Copy(crntSoln);
@@ -70,6 +59,13 @@ public class KnapsackDPSolver implements java.io.Closeable
 		}
 	}
 
+	//Constructor for the solver
+	public KnapsackBTSolver_DontTakeFirst()
+	{
+		crntSoln = null;
+	}
+
+	//Cleans up crntSoln reference
 	public void close()
 	{
 		if (crntSoln != null)
@@ -77,6 +73,8 @@ public class KnapsackDPSolver implements java.io.Closeable
 			crntSoln = null;
 		}
 	}
+
+	//Begin recursion from item #1
 	public void Solve(KnapsackInstance inst_, KnapsackSolution soln_)
 	{
 		inst = inst_;
@@ -84,8 +82,6 @@ public class KnapsackDPSolver implements java.io.Closeable
 		crntSoln = new KnapsackSolution(inst);
 		itemCnt = inst.GetItemCnt(); //Total # of items in problem
 		capacity = inst.GetCapacity();
-		t = new int[itemCnt+1][capacity+1];
-
-		FindSolns(1, 0, 0);
+		FindSolns(1, 0);
 	}
 }

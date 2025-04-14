@@ -1,6 +1,6 @@
 
 // Branch-and-Bound solver
-public class KnapsackBBSolver extends KnapsackBFSolver
+public class KnapsackBBSolver_DontTakeFirst extends KnapsackBFSolver
 {
 	protected UPPER_BOUND ub;
 	protected KnapsackInstance inst;
@@ -87,7 +87,7 @@ public class KnapsackBBSolver extends KnapsackBFSolver
 	//Can be computed in O(n) time at each node if you sort the items before you start the search (in the preprocessing step).
 	public void FindSolnsUB3(int itemNum, int load, int current_value)
 	{
-		//System.out.println("\n\n---------\nCHECK ITEM " + itemNum);
+		System.out.println("\n\n---------\nCHECK ITEM " + itemNum);
 		if (itemNum == itemCnt + 1) //If all items have been checked, evaluate the solution
 		{
 			CheckCrntSoln(); //Check if current solution is valid & better than the best
@@ -119,10 +119,10 @@ public class KnapsackBBSolver extends KnapsackBFSolver
 			}
 		}
 
-		//System.out.println("\n\nThis Upperbound: " + upperbound + "\n\nThis Lowerbound: " + lowerbound + "\n\nTotal Upperbound: " + UpperBound);
+		System.out.println("\n\nThis Upperbound: " + upperbound + "\n\nThis Lowerbound: " + lowerbound + "\n\nTotal Upperbound: " + UpperBound);
 
 		if (lowerbound < UpperBound || lowerbound <= bestSoln.GetValue()){ //If best possible w/ fractional isn't better than best so far, skip
-			//System.out.println("\n\nSKIPPING ITEM " + itemNum);
+			System.out.println("\n\nSKIPPING ITEM " + itemNum);
 			skips++;
 			return;
 		}
@@ -134,19 +134,16 @@ public class KnapsackBBSolver extends KnapsackBFSolver
 
 		//DONT TAKE is first, THEN it does TAKE
 		//Each item has 2 choices; take, or don't take
-		//System.out.println("\n\nDONT TAKE ITEM " + itemNum);
+		System.out.println("\n\nDONT TAKE ITEM " + itemNum);
 		crntSoln.DontTakeItem(actualIndex); 
 		FindSolnsUB3(itemNum + 1, load, current_value); //Go to next item and repeat
 
 		int weight = inst.GetItemSortedWeight(itemNum);
 		load += weight; //Keep track of load so far in knapsack
 
-		if (load > capacity){ 
-			//System.out.println("\n\nSKIPPING ITEM - CAP EXCEEDED" + itemNum);	
-			return;
-		} 
+		if (load > capacity){ System.out.println("\n\nSKIPPING ITEM - CAP EXCEEDED" + itemNum);	return;} 
 
-		//System.out.println("\n\nTAKE ITEM " + itemNum);
+		System.out.println("\n\nTAKE ITEM " + itemNum);
 		crntSoln.TakeItem(actualIndex);
 		FindSolnsUB3(itemNum + 1, load, current_value + inst.GetItemSortedValue(itemNum)); //Go to next item and repeat
 	
@@ -181,7 +178,7 @@ public class KnapsackBBSolver extends KnapsackBFSolver
 	}
 	
 	//Constructor for the solver
-	public KnapsackBBSolver(UPPER_BOUND ub_)
+	public KnapsackBBSolver_DontTakeFirst(UPPER_BOUND ub_)
 	{
 		ub = ub_;
 		crntSoln = null;

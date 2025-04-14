@@ -81,11 +81,24 @@ public class KnapsackInstance implements java.io.Closeable
 		VWList.add(new Item(0, 0.0f));
 
 		for (int i = 1; i <= itemCnt; i++){
-			VWList.add(i, new Item(i, (float) values[i]/weights[i]));
+			VWList.add(new Item(i, (float) values[i]/weights[i]));
+			//System.out.println("\nVWList Length: " + VWList.size() + "\nAdding Item # " + VWList.get(i).getItemNum() + "\nV/W of " + VWList.get(i).getVW());
 		}
 
 		quicksort(VWList, 1, itemCnt);
+		/*
+		System.out.println("\n\nORIGINAL LIST: ");
 
+		for (int i = 1; i <= itemCnt; i++){
+			System.out.print(i + " ");
+		}
+		
+		System.out.println("\n\nSORTED LIST: ");
+
+		for (int i = 1; i <= itemCnt; i++){
+			System.out.print(VWList.get(i).getItemNum() + " ");
+		}
+		*/
 		sortedToOriginal = new int[itemCnt+1];
 		originalToSorted = new int[itemCnt+1];
 		int index;
@@ -114,9 +127,10 @@ public class KnapsackInstance implements java.io.Closeable
 				i++;
 			}
 		}
-
 		temp = array.get(i);
 		array.set(hi, temp);
+		array.set(i, pivot);
+
 		quicksort(array, lo, i-1);
 		quicksort(array, i+1, hi);
 	}
@@ -126,9 +140,9 @@ public class KnapsackInstance implements java.io.Closeable
 		int capacity = cap;
 
 		for (int i = 1; i <= itemCnt; i++){
-			if (weights[i] <= capacity){
-				capacity -= weights[i];
-				UpperBound.TakeItem(i);
+			if (sortedWeights[i] <= capacity){
+				capacity -= sortedWeights[i];
+				UpperBound.TakeItem(GetSortedToOriginal(i));
 			}
 			else {
 				break;

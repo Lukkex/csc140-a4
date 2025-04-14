@@ -11,7 +11,7 @@ public class KnapSack
 		long BBTime1;
 		long BBTime2;
 		long BBTime3;
-		float speedup;
+		float speedupdp, speedupbt, speedupub1, speedupub2, speedupub3;
 		int itemCnt;
 		KnapsackInstance inst; //a Knapsack instance object
 		KnapsackDPSolver DPSolver = new KnapsackDPSolver(); //dynamic programming solver
@@ -99,8 +99,8 @@ public class KnapSack
 		{
 			System.out.print("\nERROR: BF and BT solutions mismatch");
 		}
-		speedup = (float)(BTTime == 0? 0 : 100.0 * (BFTime - BTTime) / (float)BFTime);
-		System.out.printf("\nSpeedup of BT relative to BF is"+speedup+"percent");
+		speedupbt = (float)(BTTime == 0? 0 : 100.0 * (BFTime - BTTime) / (float)BFTime);
+		System.out.printf("\nSpeedup of BT relative to BF is "+speedupbt+" percent");
 
 		startTime = System.nanoTime();
 		BBSolver1.Solve(inst,BBSoln1);
@@ -120,8 +120,8 @@ public class KnapSack
 		{
 			System.out.print("\nERROR: BF and BB-UB1 solutions mismatch");
 		}
-		speedup = (float)(BBTime1 == 0? 0 : 100.0 * (BFTime - BBTime1) / (float)BFTime);
-		System.out.printf("\nSpeedup of BB-UB1 relative to BF is"+speedup+"percent");
+		speedupub1 = (float)(BBTime1 == 0? 0 : 100.0 * (BFTime - BBTime1) / (float)BFTime);
+		System.out.printf("\nSpeedup of BB-UB1 relative to BF is "+speedupub1+" percent");
 		startTime = System.nanoTime();
 		BBSolver2.Solve(inst,BBSoln2);
 		elapsed = System.nanoTime()-startTime;
@@ -140,8 +140,8 @@ public class KnapSack
 		{
 			System.out.print("\nERROR: BF and BB-UB2 solutions mismatch");
 		}
-		speedup = (float)(BBTime2 == 0? 0 : 100.0 * (BFTime - BBTime2) / (float)BFTime);
-		System.out.printf("\nSpeedup of BB-UB2 relative to BF is"+speedup+"percent");
+		speedupub2 = (float)(BBTime2 == 0? 0 : 100.0 * (BFTime - BBTime2) / (float)BFTime);
+		System.out.printf("\nSpeedup of BB-UB2 relative to BF is "+speedupub2+" percent");
 
 		startTime = System.nanoTime();
 		BBSolver3.Solve(inst,BBSoln3);
@@ -161,8 +161,8 @@ public class KnapSack
 		{
 			System.out.print("\nERROR: BF and BB-UB3 solutions mismatch");
 		}
-		speedup = (float)(BBTime3 == 0? 0 : 100.0 * (BFTime - BBTime3) / (float)BFTime);
-		System.out.printf("\nSpeedup of BB-UB3 relative to BF is"+speedup+"percent");
+		speedupub3 = (float)(BBTime3 == 0? 0 : 100.0 * (BFTime - BBTime3) / (float)BFTime);
+		System.out.printf("\nSpeedup of BB-UB3 relative to BF is "+speedupub3+" percent");
 
 		inst = null;
 		DPSoln = null;
@@ -172,7 +172,7 @@ public class KnapSack
 		BBSoln2 = null;
 		BBSoln3 = null;
 
-		System.out.print("\n\nProgram Completed Successfully\n");
+		System.out.print("\n\nProgram Completed Successfully\n\nDP Time: " + DPTime + "\n\nBF Time: " + BFTime + "\n\nBT Time: " + BTTime + "\n\nUB1 Time: " + BBTime1 + "\n\nUB2 Time: " + BBTime2 + "\n\nUB3 Time: " + BBTime3);
 
 	}
 }
