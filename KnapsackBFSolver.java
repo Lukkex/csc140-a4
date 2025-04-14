@@ -18,11 +18,11 @@ public class KnapsackBFSolver implements java.io.Closeable
 			return;
 		}
 
-		//DONT TAKE is first, THEN it does TAKE
+		//TAKE, then DON'T TAKE
 		//Each item has 2 choices; take, or don't take
-		crntSoln.DontTakeItem(itemNum); 
-		FindSolns(itemNum + 1); //Go to next item and repeat
 		crntSoln.TakeItem(itemNum);
+		FindSolns(itemNum + 1); //Go to next item and repeat
+		crntSoln.DontTakeItem(itemNum); 
 		FindSolns(itemNum + 1); //Go to next item and repeat
 	}
 

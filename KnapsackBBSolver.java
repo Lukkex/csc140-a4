@@ -26,19 +26,17 @@ public class KnapsackBBSolver extends KnapsackBFSolver
 			return;
 		}
 
-		//DONT TAKE is first, THEN it does TAKE
-		//Each item has 2 choices; take, or don't take
+		//TAKE first, then DON'T TAKE
+		if (load + inst.GetItemWeight(itemNum) <= capacity){ 
+			crntSoln.TakeItem(itemNum);
+			FindSolnsUB1(itemNum + 1, load, untaken_value); //Go to next item and repeat
+
+			crntSoln.DontTakeItem(itemNum); //Backtrack
+		}
+
 		crntSoln.DontTakeItem(itemNum);
 		FindSolnsUB1(itemNum + 1, load, untaken_value + inst.GetItemValue(itemNum)); //Go to next item and repeat
 
-		load += inst.GetItemWeight(itemNum); //Keep track of load so far in knapsack
-
-		if (load > capacity) return; 
-
-		crntSoln.TakeItem(itemNum);
-		FindSolnsUB1(itemNum + 1, load, untaken_value); //Go to next item and repeat
-
-		crntSoln.DontTakeItem(itemNum); //Backtrack
 	}
 
 	//Recursively tries all combinations of items
@@ -66,20 +64,20 @@ public class KnapsackBBSolver extends KnapsackBFSolver
 			return;
 		}
 
-		//DONT TAKE is first, THEN it does TAKE
-		//Each item has 2 choices; take, or don't take
-		crntSoln.DontTakeItem(itemNum); 
-		FindSolnsUB2(itemNum + 1, load, current_value); //Go to next item and repeat
-
 		int itemvalue = inst.GetItemValue(itemNum);
 		int itemweight = inst.GetItemWeight(itemNum);
 
-		if (load + itemweight > capacity) return;
+		//TAKE, then DON'T TAKE
+		if (load + inst.GetItemWeight(itemNum) <= capacity){
+			crntSoln.TakeItem(itemNum);
+			FindSolnsUB2(itemNum + 1, load + itemweight, current_value + itemvalue); //Go to next item and repeat
 
-		crntSoln.TakeItem(itemNum);
-		FindSolnsUB2(itemNum + 1, load + itemweight, current_value + itemvalue); //Go to next item and repeat
+			crntSoln.DontTakeItem(itemNum);
+		}
 
-		crntSoln.DontTakeItem(itemNum);
+		crntSoln.DontTakeItem(itemNum); 
+		FindSolnsUB2(itemNum + 1, load, current_value); //Go to next item and repeat
+
 	}
 
 	//Recursively tries all combinations of items
@@ -87,11 +85,10 @@ public class KnapsackBBSolver extends KnapsackBFSolver
 	//Can be computed in O(n) time at each node if you sort the items before you start the search (in the preprocessing step).
 	public void FindSolnsUB3(int itemNum, int load, int current_value)
 	{
-		//System.out.println("\n\n---------\nCHECK ITEM " + itemNum);
 		if (itemNum == itemCnt + 1) //If all items have been checked, evaluate the solution
 		{
 			CheckCrntSoln(); //Check if current solution is valid & better than the best
-			checks++;
+			//checks++;
 			return;
 		}
 
@@ -101,58 +98,35 @@ public class KnapsackBBSolver extends KnapsackBFSolver
 		int upperbound = 0;
 		int lowerbound = current_value;
 
-		//System.out.print("\n\nRemaining Capacity: " + remainingCapacity);
-
 		//Upper bound calculation using fractional knapsack
 		for (int i = itemNum; i <= itemCnt; i++){
 			if (inst.GetItemSortedWeight(i) <= remainingCapacity){
-				//System.out.println("\n\n" + inst.GetItemSortedWeight(i) + " FITS IN REMAINING CAPACITY " + remainingCapacity + "\n\nItem Number: " + i + "\n\nOriginal Number: " + inst.GetSortedToOriginal(i));
 				remainingCapacity -= inst.GetItemSortedWeight(i);
 				lowerbound += inst.GetItemSortedValue(i);
-				//System.out.print("\n\nItem V/W: " + inst.GetValueOverWeight(i) + "\n\nItem V/W Calculated: " + inst.GetItemSortedValue(i)/inst.GetItemSortedWeight(i) + "\n\nItem Weight: " + inst.GetItemSortedWeight(i) + "\n\nItem Value: " + inst.GetItemSortedValue(i));
 			}
 			else {
-				//System.out.println("\n\nSKIPPING - WEIGHT " + inst.GetItemSortedWeight(i) + " DOESN'T FIT IN REMAINING CAP OF " + remainingCapacity + "\n\nItem Number: " + i + "\n\nOriginal Number: " + inst.GetSortedToOriginal(i));
 				upperbound = lowerbound;
-				//upperbound += (float) inst.GetItemSortedValue(i) * (float) remainingCapacity / inst.GetItemSortedWeight(i);
-				//break;
 			}
 		}
 
-		//System.out.println("\n\nThis Upperbound: " + upperbound + "\n\nThis Lowerbound: " + lowerbound + "\n\nTotal Upperbound: " + UpperBound);
-
 		if (lowerbound < UpperBound || lowerbound <= bestSoln.GetValue()){ //If best possible w/ fractional isn't better than best so far, skip
-			//System.out.println("\n\nSKIPPING ITEM " + itemNum);
-			skips++;
+			//skips++;
 			return;
-		}
-		else {
-			//UpperBound = lowerbound;
 		}
 
 		int actualIndex = inst.GetSortedToOriginal(itemNum);
 
-		//DONT TAKE is first, THEN it does TAKE
-		//Each item has 2 choices; take, or don't take
-		//System.out.println("\n\nDONT TAKE ITEM " + itemNum);
+		//TAKE, then DON'T TAKE
+		if (load + inst.GetItemSortedWeight(itemNum) <= capacity){
+			crntSoln.TakeItem(actualIndex);
+			FindSolnsUB3(itemNum + 1, load, current_value + inst.GetItemSortedValue(itemNum)); //Go to next item and repeat
+		
+			//BACKTRACK
+			crntSoln.DontTakeItem(actualIndex);
+		}
+
 		crntSoln.DontTakeItem(actualIndex); 
 		FindSolnsUB3(itemNum + 1, load, current_value); //Go to next item and repeat
-
-		int weight = inst.GetItemSortedWeight(itemNum);
-		load += weight; //Keep track of load so far in knapsack
-
-		if (load > capacity){ 
-			//System.out.println("\n\nSKIPPING ITEM - CAP EXCEEDED" + itemNum);	
-			return;
-		} 
-
-		//System.out.println("\n\nTAKE ITEM " + itemNum);
-		crntSoln.TakeItem(actualIndex);
-		FindSolnsUB3(itemNum + 1, load, current_value + inst.GetItemSortedValue(itemNum)); //Go to next item and repeat
-	
-		//BACKTRACK
-		crntSoln.DontTakeItem(actualIndex);
-		//FindSolnsUB3(itemNum + 1, load - weight, current_value); //Go to next item and repeat
 	}
 	
 	//Checks if current solution is valid & if best so far
@@ -218,7 +192,7 @@ public class KnapsackBBSolver extends KnapsackBFSolver
 			bestSoln.ComputeValue();
 			crntSoln.ComputeValue();
 			FindSolnsUB3(1, 0, 0);
-			System.out.println("\n\nSKIPS " + skips + " \n\nCHECKS: " + checks);
+			//System.out.println("\n\nSKIPS " + skips + " \n\nCHECKS: " + checks);
 		}
 		else
 			return;
